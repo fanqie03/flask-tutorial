@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+</head>
+<body style="height: 100%; margin: 0">
+<label>key</label>
+<input id="key" type="search" value="红">
+<br>
+<label>period</label>
+<input id="period" type="input" value="D">
+<br>
+<label>option</label>
+<input id="option" type="input" value="">
+<br>
+<button onclick="f()">搜索</button>
+<div id="container" style="height: 500px">container</div>
+<script type="text/javascript" src="js/echarts.js"></script>
+<script type="text/javascript" src="js/jquery-3.3.1.js"></script>
+<script type="text/javascript">
+    var dom = document.getElementById("container");
+    var myChart = echarts.init(dom);
+    var app = {};
+    function f() {
+        var key = $('#key')[0].value
+        var period = $('#period')[0].value
+        var option = $('#option')[0].value
+        var url = '/key/get/' + key
+        $.get({
+            url: url,
+            dataType: 'json',
+            type: 'get',
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                console.log("请求失败！");
+            },
+            data:{ 'period':period, 'option':option},
+            async: true,
+            success: function (data, textStatus, jqXHR) {
+                console.log('成功')
+                console.log(data)
+                console.log(textStatus)
+                console.log(jqXHR)
+
+                myChart.setOption(option = {
+                        title: {
+                            text: 'TEST'
+                        },
+                        xAxis: {
+                            data: data['index']
+                        },
+                        yAxis: {
+                            type: 'value'
+                        },
+                        series: {
+                            type: 'line',
+                            data: data['data']
+                        }
+                    }
+                )
+            }
+        })
+    }
+</script>
+</body>
+</html>
