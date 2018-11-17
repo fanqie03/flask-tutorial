@@ -16,18 +16,22 @@
 <input id="option" type="input" value="">
 <br>
 <button onclick="f()">搜索</button>
-<div id="container" style="height: 500px">container</div>
+<div id="container">container</div>
 <script type="text/javascript" src="js/echarts.js"></script>
 <script type="text/javascript" src="js/jquery-3.3.1.js"></script>
 <script type="text/javascript">
-    var dom = document.getElementById("container");
-    var myChart = echarts.init(dom);
-    var app = {};
+
     function f() {
-        var key = $('#key')[0].value
-        var period = $('#period')[0].value
-        var option = $('#option')[0].value
-        var url = '/key/get/' + key
+        var dom = document.getElementById("container");
+        var sub = document.createElement('div');
+        sub.setAttribute('style','height:500px');
+        dom.appendChild(sub);
+        var myChart = echarts.init(sub);
+        var app = {};
+        var key = $('#key')[0].value;
+        var period = $('#period')[0].value;
+        var option = $('#option')[0].value;
+        var url = '/key/get/' + key;
         $.get({
             url: url,
             dataType: 'json',
@@ -38,10 +42,10 @@
             data:{ 'period':period, 'option':option},
             async: true,
             success: function (data, textStatus, jqXHR) {
-                console.log('成功')
-                console.log(data)
-                console.log(textStatus)
-                console.log(jqXHR)
+                console.log('成功');
+                console.log(data);
+                console.log(textStatus);
+                console.log(jqXHR);
 
                 myChart.setOption(option = {
                         title: {

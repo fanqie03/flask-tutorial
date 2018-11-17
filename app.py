@@ -53,10 +53,12 @@ class Util:
             d = parse(i['datetime'])
             c = i['content']
             m[d] = m.get(d, 0) + len(re.findall(string=c, pattern=key))
-        j = Series(m).resample(period).sort.to_json(orient='split')
-        j = json.loads(j)
-        j['index'] = [datetime.datetime.utcfromtimestamp(x / 1000).strftime('%Y-%m-%d') for x in j['index']]
-        return j
+        d = Series(m).resample(period).sum().sort_index().to_dict()
+        m.clear()
+        m['index'] = [x.strftime('%Y-%m-%d') for x in d.keys()]
+        m['data'] = [x for x in d.values()]
+        # j['index'] = [datetime.datetime.utcfromtimestamp(x / 1000).strftime('%Y-%m-%d') for x in j['index']]
+        return m
 
     @staticmethod
     def is_cached(key, period, option):
