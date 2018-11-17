@@ -9,27 +9,51 @@ mongo_client = pymongo.MongoClient('localhost')
 scrapy_db = mongo_client['scrapy']
 hype_col = scrapy_db['HypebeastItem']
 cache_col = scrapy_db['cache']
+DIMENSION = 'dimension'
+KEY = 'key'
+OPTION = 'option'
+PERIOD = 'period'
+WEBSITE = 'website'
+RESULT = 'result'
+DATA = 'data'
 
 
-@app.route('/key/get/<string:key>')
-def key_get_str(key):
-    print(key)
+@app.route('/info/get', methods=['post', 'get'])
+def key_get_str():
     args = request.args.to_dict()
     form = request.form
 
     print('get参数：' + json.dumps(args))
-    option = args.get('option', None)
-    period = args.get('period', None)
-    cursor = Util.is_cached(key, period, option)
+    print('post参数：')
+    print(form)
+    key = form.get(KEY, None)
+    website = json.loads(form.get(WEBSITE, []))
+    option = form.get(OPTION, None)
+    period = form.get(PERIOD, None)
+    # 维度
+    condition = {DIMENSION: {KEY: key, WEBSITE: website, PERIOD: period}, OPTION: option}
+    cursor = Util.is_cached(condition)
     if cursor is not None:
         print('return from cache')
         return json.dumps(cursor['data'])
     else:
-        cursor = hype_col.find()
-        data = Util.analyze(cursor, key, period)
-        Util.cache(key, period, option, data)
+        data = Util.analyze(condition)
+        Util.cache(condition, data)
         jv = json.dumps(data)
         return jv
+
+
+@app.route('/test', methods=['post', 'get'])
+def test():
+    args = request.args.to_dict()
+    form = request.form
+    print('args:')
+    print(args)
+    print('form:')
+    print(form)
+    print(form['key'])
+    print(json.loads(form['website']))
+    return '1'
 
 
 class Util:
@@ -47,32 +71,36 @@ class Util:
         return j
 
     @staticmethod
-    def analyze(cursor, key, period):
+    def analyze(condition):
+        dimension = condition[DIMENSION]
+        website = dimension[WEBSITE]
+        key = dimension[KEY]
+        option = condition[OPTION]
+        period = dimension[PERIOD]
+        print(period)
         m = {}
-        for i in cursor:
-            d = parse(i['datetime'])
-            c = i['content']
-            m[d] = m.get(d, 0) + len(re.findall(string=c, pattern=key))
-        d = Series(m).resample(period).sum().sort_index().to_dict()
-        m.clear()
-        m['index'] = [x.strftime('%Y-%m-%d') for x in d.keys()]
-        m['data'] = [x for x in d.values()]
-        # j['index'] = [datetime.datetime.utcfromtimestamp(x / 1000).strftime('%Y-%m-%d') for x in j['index']]
+        for site in website:
+            cursor = scrapy_db[site].find()
+            for i in cursor:
+                d = parse(i['datetime'])
+                c = i['content']
+                m[d] = m.get(d, 0) + len(re.findall(string=c, pattern=key))
+            d = Series(m).resample(period).sum().sort_index().to_dict()
+            m.clear()
+            m['index'] = [x.strftime('%Y-%m-%d') for x in d.keys()]
+            m['data'] = [x for x in d.values()]
+            # j['index'] = [datetime.datetime.utcfromtimestamp(x / 1000).strftime('%Y-%m-%d') for x in j['index']]
         return m
 
     @staticmethod
-    def is_cached(key, period, option):
-        cursor = cache_col.find_one({'key': key, 'period': period, 'option': option}, {'_id': 0})
+    def is_cached(condition):
+        cursor = cache_col.find_one({DIMENSION: condition[DIMENSION], OPTION: condition[OPTION]}, {'_id': 0})
         return cursor
 
     @staticmethod
-    def cache(key, period, option, data):
-        d = dict()
-        d['key'] = key
-        d['period'] = period
-        d['option'] = option
-        d['data'] = data
-        cache_col.insert_one(d)
+    def cache(condition, data):
+        condition[DATA] = data
+        cache_col.insert_one(condition)
         return True
 
 

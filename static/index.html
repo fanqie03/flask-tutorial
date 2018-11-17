@@ -15,6 +15,10 @@
 <label>option</label>
 <input id="option" type="input" value="">
 <br>
+<label>来源</label>
+<br>
+<input type="checkbox" name="website" value="HypebeastItem" checked> Hypebeast<br>
+<input type="checkbox" name="website" value="ISizeNewsItem">ISize<br>
 <button onclick="f()">搜索</button>
 <div id="container">container</div>
 <script type="text/javascript" src="js/echarts.js"></script>
@@ -24,22 +28,28 @@
     function f() {
         var dom = document.getElementById("container");
         var sub = document.createElement('div');
-        sub.setAttribute('style','height:500px');
+        sub.setAttribute('style', 'height:500px');
         dom.appendChild(sub);
         var myChart = echarts.init(sub);
         var app = {};
         var key = $('#key')[0].value;
         var period = $('#period')[0].value;
         var option = $('#option')[0].value;
-        var url = '/key/get/' + key;
+        var website = [];
+        $('input[name="website"]:checked').each(function (i) {
+            website[i] = $(this).val();
+        });
+        console.log('website');
+        console.log(website);
+        var url = '/info/get';
         $.get({
             url: url,
             dataType: 'json',
-            type: 'get',
+            type: 'post',
             error: function (XMLHttpRequest, textStatus, errorThrown) {
                 console.log("请求失败！");
             },
-            data:{ 'period':period, 'option':option},
+            data: { 'key': key, 'period': period, 'website': JSON.stringify(website), 'option': option},
             async: true,
             success: function (data, textStatus, jqXHR) {
                 console.log('成功');
