@@ -9,8 +9,10 @@ mongo_client = pymongo.MongoClient('localhost')
 scrapy_db = mongo_client['scrapy']
 hype_col = scrapy_db['HypebeastItem']
 cache_col = scrapy_db['cache']
+predict_col = scrapy_db['predict']
 DIMENSION = 'dimension'
 KEY = 'key'
+FREQ = 'freq'
 OPTION = 'option'
 PERIOD = 'period'
 WEBSITE = 'website'
@@ -41,6 +43,24 @@ def key_get_str():
         Util.cache(condition, data)
         jv = json.dumps(data)
         return jv
+
+
+@app.route('/predict/get', methods=['post', 'get'])
+def get_predict():
+    args = request.args.to_dict()
+    form = request.form
+    print('get参数：' + json.dumps(args))
+    print('post参数：')
+    print(form)
+
+    key = args[KEY]
+    freq = args[FREQ]
+
+    cursor = predict_col.find_one({KEY: key, FREQ: freq}, {'_id': 0})
+    if cursor is None:
+        return '{}'
+    cursor['index'] = [datetime.datetime.utcfromtimestamp(x).strftime('%Y-%m-%d') for x in cursor['index']]
+    return json.dumps(cursor)
 
 
 @app.route('/test', methods=['post', 'get'])
@@ -102,6 +122,11 @@ class Util:
         condition[DATA] = data
         cache_col.insert_one(condition)
         return True
+
+    @staticmethod
+    def get_predict(key, freq):
+        ans = predict_col.find_one({'key': key, 'freq': 'freq'})
+        return ans
 
 
 if __name__ == '__main__':
