@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html style="height: 100%">
+<head>
+    <meta charset="utf-8">
+</head>
+<body style="height: 100%; margin: 0">
+<div id="container" style="height:100%"></div>
+<script type="text/javascript" src="js/echarts.js"></script>
+<script type="text/javascript" src="js/jquery-3.3.1.js"></script>
+
+<script type="text/javascript">
+
+    f2();
+    function f2() {
+        var dom = document.getElementById("container");
+        var myChart = echarts.init(dom);
+        var app = {};
+        option = null;
+        option = {
+            tooltip: {
+                trigger: 'axis'
+            },
+            toolbox: {
+                show: true,
+                feature: {
+                    dataZoom: {
+                        yAxisIndex: 'none'
+                    },
+                    dataView: {readOnly: false},
+                    magicType: {type: ['line', 'bar']},
+                    restore: {},
+                    saveAsImage: {}
+                }
+            },
+            legend: {
+                data: ['predict', 'data']
+            },
+            xAxis: {
+                type: 'category',
+                data: [1, 2, 3, 4, 5, 6, 7]
+            },
+            yAxis: {
+                type: 'value'
+            },
+            dataZoom: [
+                {
+                    type: 'inside',
+                    start: 50,
+                    end: 100
+                },
+                {
+                    show: true,
+                    type: 'slider',
+                    y: '90%',
+                    start: 50,
+                    end: 100
+                }
+            ],
+            series: [{
+                name: 'predict',
+                data: [820, 932, 901, 934, 1290, 1330, 1320],
+                smooth: true,
+                markPoint: {
+                    data: [
+                        {coord: [5.5, 1000], name: '123', value: 'today'}
+                    ]
+                },
+                markLine: {
+                    data: [
+                        {type: 'average', name: '平均值'}
+                    ]
+                },
+                type: 'line'
+            }, {
+                name: 'data',
+                data: [1, 2, 2, 4, 56, null, 12],
+                connectNulls: true,
+                smooth: true,
+                type: 'line'
+            }]
+        };
+
+        option['xAxis']['data'] = null;
+
+        option['series'][0]['data'] = null; //predict
+
+        option['series'][1]['data'] = null; //data
+
+        option['series'][0]['markPoint']['data'][0]['coord'] = null; // predict today
+
+        key='红';
+        freq = 'Q-JAN';
+
+        $.ajax({
+            url: '/predict/get',
+            dataType: 'json',
+            type: 'get',
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                console.log("请求失败！");
+            },
+            data: {'key': key, 'freq': freq},
+            async: true,
+            success: function (data, textStatus, jqXHR) {
+                console.log('成功');
+                console.log(data);
+                console.log(textStatus);
+                console.log(jqXHR);
+
+                var sub = document.createElement('div');
+                sub.setAttribute('style', 'height:100%');
+                dom.appendChild(sub);
+
+                rowData = data['data'];
+
+                rawoption = {
+                    title: {
+                        text: data['key']
+                    },
+                    tooltip: {
+                        trigger: 'axis'
+                    },
+                    toolbox: {
+                        show: true,
+                        feature: {
+                            dataZoom: {
+                                yAxisIndex: 'none'
+                            },
+                            dataView: {readOnly: false},
+                            magicType: {type: ['line', 'bar']},
+                            restore: {},
+                            saveAsImage: {}
+                        }
+                    },
+                    legend: {
+                        data: ['predict', 'data']
+                    },
+                    xAxis: {
+                        type: 'category',
+                        data: data['index']
+                    },
+                    yAxis: {
+                        type: 'value'
+                    },
+
+                    series: [{
+                        name: 'predict',
+                        data: rowData.map(function (item) {
+                            return item[0]
+                        }),
+                        markPoint: {
+                            data: [
+                                {coord: [5.5, 1000], name: '123', value: 'today'}
+                            ]
+                        },
+                        connectNulls: true,
+                        type: 'line'
+                    }, {
+                        name: 'data',
+                        data: rowData.map(function (item) {
+                            return item[1]
+                        }),
+                        connectNulls: true,
+                        smooth: true,
+                        type: 'line'
+                    }]
+                };
+                myChart.setOption(option = rawoption)
+            }
+        });
+        if (option && typeof option === "object") {
+            myChart.setOption(option, true);
+        }
+    }
+
+
+</script>
+
+</body>
+</html>
