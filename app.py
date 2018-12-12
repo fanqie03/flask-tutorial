@@ -1,5 +1,5 @@
 from flask import Flask, request
-import pymongo, json, jieba, datetime, re
+import pymongo, json, jieba, datetime, re, time
 from pandas import DataFrame, Series
 from dateutil.parser import parse
 
@@ -59,6 +59,7 @@ def get_predict():
     cursor = predict_col.find_one({KEY: key, FREQ: freq}, {'_id': 0})
     if cursor is None:
         return '{}'
+    Util.mark_today(cursor)
     cursor['index'] = [datetime.datetime.utcfromtimestamp(x).strftime('%Y-%m-%d') for x in cursor['index']]
     return json.dumps(cursor)
 
@@ -127,6 +128,33 @@ class Util:
     def get_predict(key, freq):
         ans = predict_col.find_one({'key': key, 'freq': 'freq'})
         return ans
+
+    @staticmethod
+    def striftodate(x):
+        '''
+        将时间戳转为日期，时间戳要求为10位，13位需要除以1000再传进来
+        :param x:
+        :return:
+        '''
+        return datetime.datetime.utcfromtimestamp(x).strftime('%Y-%m-%d')
+
+    @staticmethod
+    def mark_today(d):
+        '''
+        找到离今天最近的时间，添加该坐标
+        :param d: 带index的时间戳数组的字典
+        :return:
+        '''
+        index = 0
+        min_ = 0x7fffffff
+        now = int(time.time())
+        for i in range(len(d['index'])):
+            t = abs(now - int(d['index'][i]))
+            if min_ > t:
+                index = i
+                min_ = t
+        today = Util.striftodate(d['index'][index])
+        d['today'] = [today, d['data'][index][0]]
 
 
 if __name__ == '__main__':
