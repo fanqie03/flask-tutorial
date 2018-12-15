@@ -1,57 +1,82 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <meta charset="utf-8">
+    <title>layui</title>
     <meta name="renderer" content="webkit">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <link rel="stylesheet" href="js/layui/css/layui.css" media="all">
-</head>
-<body>
-    <div class="layui-form-item" class="layui-row">
-        <div class="layui-col-xs3">
-            <label class="layui-form-label">key</label>
-            <div class="layui-input-block">
-                <input id="key" type="search" value="红" class="layui-input">
-            </div>
-        </div>
-        <div class="layui-col-xs3">
-            <label class="layui-form-label">period</label>
-            <div class="layui-input-block">
-                <input id="period" type="input" value="D" class="layui-input">
-            </div>
-        </div>
-        <div class="layui-col-xs3">
-            <label class="layui-form-label">option</label>
-            <div class="layui-input-block">
-                <input id="option" type="input" value="" class="layui-input">
-            </div>
-        </div>
-        <div class="layui-col-xs3">
-            <label class="layui-form-label">来源</label>
-            <div class="layui-input-block">
-                <input type="checkbox" name="website" value="HypebeastItem" title="Hypebeast" checked>Hypebeast
-                <input type="checkbox" name="website" value="ISizeNewsItem" title="ISize">ISize
 
-                <button onclick="f1()" class="layui-btn">搜索</button>
+</head>
+<body class="">
+
+<div class="layui-tab layui-tab-card">
+    <ul class="layui-tab-title layui-bg-black">
+        <li class="layui-this">search</li>
+        <li onclick="f2()">predict</li>
+    </ul>
+    <div class="layui-tab-content" style="height: 1000px;">
+        <div class="layui-tab-item layui-show">
+            <div class="layui-form-item layui-row">
+                <div class="layui-col-xs3">
+                    <label class="layui-form-label">key</label>
+                    <div class="layui-input-block">
+                        <input id="key" type="search" value="红" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-col-xs3">
+                    <label class="layui-form-label">period</label>
+                    <div class="layui-input-block">
+                        <input id="period" type="input" value="D" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-col-xs3">
+                    <label class="layui-form-label">option</label>
+                    <div class="layui-input-block">
+                        <input id="option" type="input" value="" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-col-xs3">
+                    <label class="layui-form-label">来源</label>
+                    <div class="layui-input-block">
+                        <input type="checkbox" name="website" value="HypebeastItem" title="Hypebeast" checked>Hypebeast
+                        <input type="checkbox" name="website" value="ISizeNewsItem" title="ISize">ISize
+
+                        <button onclick="f1()" class="layui-btn">搜索</button>
+                    </div>
+                </div>
             </div>
+
+            <div class="layui-tab" lay-allowClose="true">
+                <ul class="layui-tab-title" id="container-search-title"></ul>
+                <div class="layui-tab-content" id="container-search-content"></div>
+            </div>
+            <div id="container-search" style="height: 500px;width: 500px"></div>
+
+        </div>
+        <div class="layui-tab-item">
+            <div class="layui-tab">
+                <div class="layui-tab-title">
+                    <ul id="container-predict-title">
+                    </ul>
+                </div>
+                <div class="layui-tab-content" id="container-predict-content"></div>
+            </div>
+            <div id="container-predict" style="" class="layui-row "></div>
+
         </div>
     </div>
+</div>
 
-<div id="container" style="height:100%">container</div>
 <script type="text/javascript" src="js/echarts.js"></script>
 <script type="text/javascript" src="js/jquery-3.3.1.js"></script>
 <script type="text/javascript" src="js/layui/layui.all.js"></script>
-<script type="text/javascript">
+<script src="js/layui/layui.all.js" charset="utf-8"></script>
+<script>
 
     function f1() {
-        var dom = document.getElementById("container");
-        var sub = document.createElement('div');
-        sub.setAttribute('style', 'height:500px');
-        dom.appendChild(sub);
-        var myChart = echarts.init(sub);
-        var app = {};
+
         var key = $('#key')[0].value;
         var period = $('#period')[0].value;
         var option = $('#option')[0].value;
@@ -76,7 +101,18 @@
                 console.log(data);
                 console.log(textStatus);
                 console.log(jqXHR);
-
+                titleTab = $('#container-search-title')[0];
+                contentTab = $('#container-search-content')[0];
+                console.log(titleTab);
+                console.log(contentTab);
+                subTitleTab = document.createElement("li");
+                subTitleTab.innerText = key + "-" + period;
+                titleTab.appendChild(subTitleTab);
+                subContentTab = document.createElement("div");
+                subContentTab.setAttribute('style', 'height:500px;width: 1000px');
+                subContentTab.setAttribute('class', 'layui-tab-item');
+                contentTab.appendChild(subContentTab);
+                let myChart = echarts.init(subContentTab);
                 myChart.setOption(option = {
                         title: {
                             text: key + "-" + period
@@ -92,10 +128,124 @@
                             data: data['data']
                         }
                     }
-                )
+                );
+                subTitleTab.click();
             }
         })
     }
+</script>
+<script>
+    var flag = false;
+
+    function f2() {
+        if (flag) {
+            return;
+        }
+        flag = true;
+        m = {
+            '颜色': ['红', '蓝', '黄', '绿', '灰', '白'],
+            '面料': [],
+            '款式': []
+        };
+        for (var j in m) {
+            list = m[j];
+            titleTab = $('#container-predict-title')[0];
+            contentTab = $('#container-predict-content')[0];
+            console.log(titleTab);
+            console.log(contentTab);
+            subTitleTab = document.createElement("li");
+            subTitleTab.innerText = j;
+            titleTab.appendChild(subTitleTab);
+            subContentTab = document.createElement("div");
+            subContentTab.setAttribute('style', 'height:500px');
+            subContentTab.setAttribute('class', 'layui-tab-item');
+            contentTab.appendChild(subContentTab);
+            for (i = 0; i < list.length; i++) {
+                key = list[i];
+                freq = 'Q-JAN';
+                $.ajax({
+                    url: '/predict/get',
+                    dataType: 'json',
+                    type: 'get',
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        console.log("请求失败！");
+                    },
+                    data: {'key': key, 'freq': freq},
+                    async: false,
+                    success: function (data, textStatus, jqXHR) {
+                        console.log('成功');
+                        console.log(data);
+                        console.log(textStatus);
+                        console.log(jqXHR);
+                        var sub = document.createElement('div');
+                        sub.setAttribute('style', 'height:500px;width:500px');
+                        sub.setAttribute('class', 'layui-col-xs3');
+                        subContentTab.appendChild(sub);
+                        var myChart = echarts.init(sub);
+                        var app = {};
+
+                        rowData = data['data'];
+
+                        rawoption = {
+                            title: {
+                                text: data['key']
+                            },
+                            tooltip: {
+                                trigger: 'axis'
+                            },
+                            toolbox: {
+                                show: true,
+                                feature: {
+                                    dataZoom: {
+                                        yAxisIndex: 'none'
+                                    },
+                                    dataView: {readOnly: false},
+                                    magicType: {type: ['line', 'bar']},
+                                    restore: {},
+                                    saveAsImage: {}
+                                }
+                            },
+                            legend: {
+                                data: ['predict', 'data']
+                            },
+                            xAxis: {
+                                type: 'category',
+                                data: data['index']
+                            },
+                            yAxis: {
+                                type: 'value'
+                            },
+
+                            series: [{
+                                name: 'predict',
+                                data: rowData.map(function (item) {
+                                    return item[0]
+                                }),
+                                markPoint: {
+                                    data: [
+                                        {coord: data['today'], name: '123', value: 'today'}
+                                    ]
+                                },
+                                connectNulls: true,
+                                type: 'line'
+                            }, {
+                                name: 'data',
+                                data: rowData.map(function (item) {
+                                    return item[1]
+                                }),
+                                connectNulls: true,
+                                smooth: true,
+                                type: 'line'
+                            }]
+                        };
+                        myChart.setOption(rawoption)
+                    }
+                });
+            }
+        }
+    }
+
+
 </script>
 </body>
 </html>
