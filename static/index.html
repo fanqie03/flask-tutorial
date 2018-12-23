@@ -114,6 +114,9 @@
                 contentTab.appendChild(subContentTab);
                 let myChart = echarts.init(subContentTab);
                 myChart.setOption(option = {
+                        tooltip: {
+                            trigger: 'axis'
+                        },
                         title: {
                             text: key + "-" + period
                         },
@@ -144,8 +147,8 @@
         flag = true;
         m = {
             '颜色': ['红', '蓝', '黄', '绿', '灰', '白'],
-            '面料': [],
-            '款式': []
+            '面料': ['PU','真皮','纤维','橡胶'],
+            '款式': ['皮鞋','运动鞋','户外鞋','布鞋','网球鞋','登山鞋']
         };
         for (var j in m) {
             list = m[j];
