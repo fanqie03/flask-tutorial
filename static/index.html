@@ -15,8 +15,10 @@
     <ul class="layui-tab-title layui-bg-black">
         <li class="layui-this">search</li>
         <li onclick="f2()">predict</li>
+        <li onclick="f3()">recommend</li>
     </ul>
     <div class="layui-tab-content" style="height: 1000px;">
+        <!--第一部分-->
         <div class="layui-tab-item layui-show">
             <div class="layui-form-item layui-row">
                 <div class="layui-col-xs3">
@@ -55,6 +57,7 @@
             <div id="container-search" style="height: 500px;width: 500px"></div>
 
         </div>
+        <!--第二部分-->
         <div class="layui-tab-item">
             <div class="layui-tab">
                 <div class="layui-tab-title">
@@ -65,6 +68,11 @@
             </div>
             <div id="container-predict" style="" class="layui-row "></div>
 
+        </div>
+        <!--第三部分-->
+        <div class="layui-tab-item">
+            <ul class="layui-timeline" id="container-recommend">
+            </ul>
         </div>
     </div>
 </div>
@@ -138,13 +146,13 @@
     }
 </script>
 <script>
-    var flag = false;
+    var flag2 = false;
 
     function f2() {
-        if (flag) {
+        if (flag2) {
             return;
         }
-        flag = true;
+        flag2 = true;
         m = {
             '颜色': ['红', '蓝', '黄', '绿', '灰', '白'],
             '面料': ['PU','真皮','纤维','橡胶'],
@@ -246,6 +254,70 @@
                 });
             }
         }
+    }
+
+
+</script>
+<script>
+    var flag3 = false;
+
+    function f3() {
+        if (flag3) {
+            return;
+        }
+        flag3 = true;
+        $.ajax({
+            url: '/recommend/get',
+            dataType: 'json',
+            type: 'get',
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                console.log("请求失败！");
+                console.log(errorThrown);
+            },
+            async: false,
+            success: function (data, textStatus, jqXHR) {
+                console.log('成功');
+                container_commend =$('#container-recommend')[0];
+                for(i = 0; i < data.length; i++) {
+                    item = data[i];
+
+                    _item = document.createElement('li');
+                    _item.setAttribute('class', 'layui-timeline-item');
+
+                    _icon = document.createElement('i');
+                    _icon.innerText = '';
+                    _icon.setAttribute('class', 'layui-icon layui-timeline-axis');
+
+                    _a = document.createElement('a');
+                    _a.setAttribute('href',item['url']);
+                    _a.setAttribute('target', '_blank');
+
+                    _content = document.createElement('div');
+                    _content.setAttribute('class', 'layui-timeline-content layui-text');
+
+                    _title = document.createElement('h3');
+                    _title.setAttribute('class', 'layui-timeline-title');
+                    _title.innerText = item['title'];
+
+                    _detail = document.createElement('p');
+                    _detail.innerText =item['excerpt'];
+
+                    _img = document.createElement('img');
+                    _img.setAttribute('src',item['image_urls'][0]);
+                    _img.setAttribute('height', '250px');
+                    
+                    //    拼装
+                    container_commend.appendChild(_item);
+                    _item.appendChild(_icon);
+                    _item.appendChild(_a);
+                    _a.appendChild(_content);
+                    _content.appendChild(_title);
+                    _content.appendChild(_detail);
+                    _content.appendChild(_img);
+
+                }
+            }
+        });
     }
 
 

@@ -64,6 +64,15 @@ def get_predict():
     return json.dumps(cursor)
 
 
+@app.route('/recommend/get', methods=['post', 'get'])
+def recommend():
+    raw_data = predict_col.find({}, {'_id': 0})
+    predict_data = [x for x in raw_data]
+    raw_data = hype_col.find({}, {'_id': 0})
+    raw_data = [x for x in raw_data]
+    j = Util.recommend(predict_data, raw_data)
+    return json.dumps(j[:10])
+
 @app.route('/test', methods=['post', 'get'])
 def test():
     args = request.args.to_dict()
@@ -156,6 +165,34 @@ class Util:
         today = Util.striftodate(d['index'][index])
         d['today'] = [today, d['data'][index][0]]
 
+    @staticmethod
+    def recommend(predict_data, raw_data):
+        hot = []
+        for d in predict_data:
+            index = 0
+            min_ = 0x7fffffff
+            now = int(time.time())
+            for i in range(len(d['index'])):
+                t = abs(now - int(d['index'][i]))
+                if min_ > t:
+                    index = i
+                    min_ = t
+            next_data = d['data'][index + 1][0]
+            today_data = d['data'][index][0]
+            if (next_data > today_data):
+                hot.append(d['key'])
+
+        raw_data = [x for x in raw_data]
+
+        comment_items = []
+        for d in raw_data:
+            for h in hot:
+                if d['content'].find(h) >= 0:
+                    comment_items.append(d)
+
+        return comment_items
+
 
 if __name__ == '__main__':
+    # $ flask run
     app.run(debug=True)
