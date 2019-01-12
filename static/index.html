@@ -1,57 +1,90 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <meta charset="utf-8">
+    <title>layui</title>
     <meta name="renderer" content="webkit">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <link rel="stylesheet" href="js/layui/css/layui.css" media="all">
-</head>
-<body>
-    <div class="layui-form-item" class="layui-row">
-        <div class="layui-col-xs3">
-            <label class="layui-form-label">key</label>
-            <div class="layui-input-block">
-                <input id="key" type="search" value="红" class="layui-input">
-            </div>
-        </div>
-        <div class="layui-col-xs3">
-            <label class="layui-form-label">period</label>
-            <div class="layui-input-block">
-                <input id="period" type="input" value="D" class="layui-input">
-            </div>
-        </div>
-        <div class="layui-col-xs3">
-            <label class="layui-form-label">option</label>
-            <div class="layui-input-block">
-                <input id="option" type="input" value="" class="layui-input">
-            </div>
-        </div>
-        <div class="layui-col-xs3">
-            <label class="layui-form-label">来源</label>
-            <div class="layui-input-block">
-                <input type="checkbox" name="website" value="HypebeastItem" title="Hypebeast" checked>Hypebeast
-                <input type="checkbox" name="website" value="ISizeNewsItem" title="ISize">ISize
 
-                <button onclick="f1()" class="layui-btn">搜索</button>
+</head>
+<body class="">
+
+<div class="layui-tab layui-tab-card">
+    <ul class="layui-tab-title layui-bg-black">
+        <li class="layui-this">search</li>
+        <li onclick="f2()">predict</li>
+        <li onclick="f3()">recommend</li>
+    </ul>
+    <div class="layui-tab-content" style="height: 1000px;">
+        <!--第一部分-->
+        <div class="layui-tab-item layui-show">
+            <div class="layui-form-item layui-row">
+                <div class="layui-col-xs3">
+                    <label class="layui-form-label">key</label>
+                    <div class="layui-input-block">
+                        <input id="key" type="search" value="红" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-col-xs3">
+                    <label class="layui-form-label">period</label>
+                    <div class="layui-input-block">
+                        <input id="period" type="input" value="D" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-col-xs3">
+                    <label class="layui-form-label">option</label>
+                    <div class="layui-input-block">
+                        <input id="option" type="input" value="" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-col-xs3">
+                    <label class="layui-form-label">来源</label>
+                    <div class="layui-input-block">
+                        <input type="checkbox" name="website" value="HypebeastItem" title="Hypebeast" checked>Hypebeast
+                        <input type="checkbox" name="website" value="ISizeNewsItem" title="ISize">ISize
+
+                        <button onclick="f1()" class="layui-btn">搜索</button>
+                    </div>
+                </div>
             </div>
+
+            <div class="layui-tab" lay-allowClose="true">
+                <ul class="layui-tab-title" id="container-search-title"></ul>
+                <div class="layui-tab-content" id="container-search-content"></div>
+            </div>
+            <div id="container-search" style="height: 500px;width: 500px"></div>
+
+        </div>
+        <!--第二部分-->
+        <div class="layui-tab-item">
+            <div class="layui-tab">
+                <div class="layui-tab-title">
+                    <ul id="container-predict-title">
+                    </ul>
+                </div>
+                <div class="layui-tab-content" id="container-predict-content"></div>
+            </div>
+            <div id="container-predict" style="" class="layui-row "></div>
+
+        </div>
+        <!--第三部分-->
+        <div class="layui-tab-item">
+            <ul class="layui-timeline" id="container-recommend">
+            </ul>
         </div>
     </div>
+</div>
 
-<div id="container" style="height:100%">container</div>
 <script type="text/javascript" src="js/echarts.js"></script>
 <script type="text/javascript" src="js/jquery-3.3.1.js"></script>
 <script type="text/javascript" src="js/layui/layui.all.js"></script>
-<script type="text/javascript">
+<script src="js/layui/layui.all.js" charset="utf-8"></script>
+<script>
 
     function f1() {
-        var dom = document.getElementById("container");
-        var sub = document.createElement('div');
-        sub.setAttribute('style', 'height:500px');
-        dom.appendChild(sub);
-        var myChart = echarts.init(sub);
-        var app = {};
+
         var key = $('#key')[0].value;
         var period = $('#period')[0].value;
         var option = $('#option')[0].value;
@@ -76,8 +109,22 @@
                 console.log(data);
                 console.log(textStatus);
                 console.log(jqXHR);
-
+                titleTab = $('#container-search-title')[0];
+                contentTab = $('#container-search-content')[0];
+                console.log(titleTab);
+                console.log(contentTab);
+                subTitleTab = document.createElement("li");
+                subTitleTab.innerText = key + "-" + period;
+                titleTab.appendChild(subTitleTab);
+                subContentTab = document.createElement("div");
+                subContentTab.setAttribute('style', 'height:500px;width: 1000px');
+                subContentTab.setAttribute('class', 'layui-tab-item');
+                contentTab.appendChild(subContentTab);
+                let myChart = echarts.init(subContentTab);
                 myChart.setOption(option = {
+                        tooltip: {
+                            trigger: 'axis'
+                        },
                         title: {
                             text: key + "-" + period
                         },
@@ -92,10 +139,188 @@
                             data: data['data']
                         }
                     }
-                )
+                );
+                subTitleTab.click();
             }
         })
     }
+</script>
+<script>
+    var flag2 = false;
+
+    function f2() {
+        if (flag2) {
+            return;
+        }
+        flag2 = true;
+        m = {
+            '颜色': ['红', '蓝', '黄', '绿', '灰', '白'],
+            '面料': ['PU','真皮','纤维','橡胶'],
+            '款式': ['皮鞋','运动鞋','户外鞋','布鞋','网球鞋','登山鞋']
+        };
+        for (var j in m) {
+            list = m[j];
+            titleTab = $('#container-predict-title')[0];
+            contentTab = $('#container-predict-content')[0];
+            console.log(titleTab);
+            console.log(contentTab);
+            subTitleTab = document.createElement("li");
+            subTitleTab.innerText = j;
+            titleTab.appendChild(subTitleTab);
+            subContentTab = document.createElement("div");
+            subContentTab.setAttribute('style', 'height:500px');
+            subContentTab.setAttribute('class', 'layui-tab-item');
+            contentTab.appendChild(subContentTab);
+            for (i = 0; i < list.length; i++) {
+                key = list[i];
+                freq = 'Q-JAN';
+                $.ajax({
+                    url: '/predict/get',
+                    dataType: 'json',
+                    type: 'get',
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        console.log("请求失败！");
+                    },
+                    data: {'key': key, 'freq': freq},
+                    async: false,
+                    success: function (data, textStatus, jqXHR) {
+                        console.log('成功');
+                        console.log(data);
+                        console.log(textStatus);
+                        console.log(jqXHR);
+                        var sub = document.createElement('div');
+                        sub.setAttribute('style', 'height:500px;width:500px');
+                        sub.setAttribute('class', 'layui-col-xs3');
+                        subContentTab.appendChild(sub);
+                        var myChart = echarts.init(sub);
+                        var app = {};
+
+                        rowData = data['data'];
+
+                        rawoption = {
+                            title: {
+                                text: data['key']
+                            },
+                            tooltip: {
+                                trigger: 'axis'
+                            },
+                            toolbox: {
+                                show: true,
+                                feature: {
+                                    dataZoom: {
+                                        yAxisIndex: 'none'
+                                    },
+                                    dataView: {readOnly: false},
+                                    magicType: {type: ['line', 'bar']},
+                                    restore: {},
+                                    saveAsImage: {}
+                                }
+                            },
+                            legend: {
+                                data: ['predict', 'data']
+                            },
+                            xAxis: {
+                                type: 'category',
+                                data: data['index']
+                            },
+                            yAxis: {
+                                type: 'value'
+                            },
+
+                            series: [{
+                                name: 'predict',
+                                data: rowData.map(function (item) {
+                                    return item[0]
+                                }),
+                                markPoint: {
+                                    data: [
+                                        {coord: data['today'], name: '123', value: 'today'}
+                                    ]
+                                },
+                                connectNulls: true,
+                                type: 'line'
+                            }, {
+                                name: 'data',
+                                data: rowData.map(function (item) {
+                                    return item[1]
+                                }),
+                                connectNulls: true,
+                                smooth: true,
+                                type: 'line'
+                            }]
+                        };
+                        myChart.setOption(rawoption)
+                    }
+                });
+            }
+        }
+    }
+
+
+</script>
+<script>
+    var flag3 = false;
+
+    function f3() {
+        if (flag3) {
+            return;
+        }
+        flag3 = true;
+        $.ajax({
+            url: '/recommend/get',
+            dataType: 'json',
+            type: 'get',
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                console.log("请求失败！");
+                console.log(errorThrown);
+            },
+            async: false,
+            success: function (data, textStatus, jqXHR) {
+                console.log('成功');
+                container_commend =$('#container-recommend')[0];
+                for(i = 0; i < data.length; i++) {
+                    item = data[i];
+
+                    _item = document.createElement('li');
+                    _item.setAttribute('class', 'layui-timeline-item');
+
+                    _icon = document.createElement('i');
+                    _icon.innerText = '';
+                    _icon.setAttribute('class', 'layui-icon layui-timeline-axis');
+
+                    _a = document.createElement('a');
+                    _a.setAttribute('href',item['url']);
+                    _a.setAttribute('target', '_blank');
+
+                    _content = document.createElement('div');
+                    _content.setAttribute('class', 'layui-timeline-content layui-text');
+
+                    _title = document.createElement('h3');
+                    _title.setAttribute('class', 'layui-timeline-title');
+                    _title.innerText = item['title'];
+
+                    _detail = document.createElement('p');
+                    _detail.innerText =item['excerpt'];
+
+                    _img = document.createElement('img');
+                    _img.setAttribute('src',item['image_urls'][0]);
+                    _img.setAttribute('height', '250px');
+                    
+                    //    拼装
+                    container_commend.appendChild(_item);
+                    _item.appendChild(_icon);
+                    _item.appendChild(_a);
+                    _a.appendChild(_content);
+                    _content.appendChild(_title);
+                    _content.appendChild(_detail);
+                    _content.appendChild(_img);
+
+                }
+            }
+        });
+    }
+
+
 </script>
 </body>
 </html>
