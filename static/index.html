@@ -9,9 +9,9 @@
     <link rel="stylesheet" href="js/layui/css/layui.css" media="all">
 
 </head>
-<body class="">
+<body class="" style="padding: 20px; background-color: #F2F2F2;">
 
-<div class="layui-tab layui-tab-card">
+<div class="layui-tab layui-tab-card" >
     <ul class="layui-tab-title layui-bg-black">
         <li class="layui-this">search</li>
         <li onclick="f2()">predict</li>
@@ -70,8 +70,8 @@
 
         </div>
         <!--第三部分-->
-        <div class="layui-tab-item">
-            <ul class="layui-timeline" id="container-recommend">
+        <div  class="layui-tab-item">
+            <ul  id="container-recommend">
             </ul>
         </div>
     </div>
@@ -122,22 +122,55 @@
                 contentTab.appendChild(subContentTab);
                 let myChart = echarts.init(subContentTab);
                 myChart.setOption(option = {
-                        tooltip: {
-                            trigger: 'axis'
-                        },
-                        title: {
-                            text: key + "-" + period
-                        },
-                        xAxis: {
-                            data: data['index']
-                        },
-                        yAxis: {
-                            type: 'value'
-                        },
-                        series: {
-                            type: 'line',
-                            data: data['data']
+                    tooltip: {
+                        trigger: 'axis'
+                    },
+                    title: {
+                        text: key + "-" + period
+                    },
+                    xAxis: {
+                        data: data['index']
+                    },
+                    yAxis: {
+                        type: 'value'
+                    },
+                    toolbox: {
+                        show: true,
+                        feature: {
+                            dataZoom: {
+                                yAxisIndex: 'none'
+                            },
+                            dataView: {readOnly: false},
+                            magicType: {type: ['line', 'bar']},
+                            restore: {},
+                            saveAsImage: {}
                         }
+                    },
+                    dataZoom: [
+                        {
+                            show: true,
+                            start: 94,
+                            end: 100
+                        },
+                        {
+                            type: 'inside',
+                            start: 94,
+                            end: 100
+                        },
+                        {
+                            show: true,
+                            yAxisIndex: 0,
+                            filterMode: 'empty',
+                            width: 30,
+                            height: '80%',
+                            showDataShadow: false,
+                            left: '93%'
+                        }
+                    ],
+                    series: {
+                        type: 'line',
+                        data: data['data']
+                    }
                     }
                 );
                 subTitleTab.click();
@@ -154,9 +187,9 @@
         }
         flag2 = true;
         m = {
-            '颜色': ['红', '蓝', '黄', '绿', '灰', '白'],
-            '面料': ['PU','真皮','纤维','橡胶'],
-            '款式': ['皮鞋','运动鞋','户外鞋','布鞋','网球鞋','登山鞋']
+            '颜色': ['红', '蓝', '黄', '绿', '灰', '白','金属','冷','暖','混合','暗'],
+            '面料': ['PU','真皮','纤维','橡胶','织布','网布','丝绒','车线'],
+            '款式': ['皮鞋','运动鞋','户外鞋','布鞋','网球鞋','登山鞋','童鞋']
         };
         for (var j in m) {
             list = m[j];
@@ -277,38 +310,42 @@
             async: false,
             success: function (data, textStatus, jqXHR) {
                 console.log('成功');
+                console.log(data);
                 container_commend =$('#container-recommend')[0];
                 for(i = 0; i < data.length; i++) {
-                    item = data[i];
+                    item = data[i]._source;
 
                     _item = document.createElement('li');
-                    _item.setAttribute('class', 'layui-timeline-item');
+                    _item.setAttribute('class', 'layui-col-md3 layui-card');
 
-                    _icon = document.createElement('i');
-                    _icon.innerText = '';
-                    _icon.setAttribute('class', 'layui-icon layui-timeline-axis');
+                    // _icon = document.createElement('i');
+                    // _icon.innerText = '';
+                    // _icon.setAttribute('class', 'layui-icon');
 
                     _a = document.createElement('a');
-                    _a.setAttribute('href',item['url']);
+                    _a.setAttribute('href',item['link']);
                     _a.setAttribute('target', '_blank');
 
                     _content = document.createElement('div');
-                    _content.setAttribute('class', 'layui-timeline-content layui-text');
+                    _content.setAttribute('class', 'layui-card-body layui-text');
 
                     _title = document.createElement('h3');
-                    _title.setAttribute('class', 'layui-timeline-title');
+                    _title.setAttribute('class', 'layui-card-header');
+                    if(item['title'].length>15){
+                        item['title'] = item['title'].substr(0,15)+'...'
+                    }
                     _title.innerText = item['title'];
 
                     _detail = document.createElement('p');
-                    _detail.innerText =item['excerpt'];
+                    _detail.innerText ='现价：'+item['discount'];
 
                     _img = document.createElement('img');
-                    _img.setAttribute('src',item['image_urls'][0]);
+                    _img.setAttribute('src',item['url']);
                     _img.setAttribute('height', '250px');
                     
                     //    拼装
                     container_commend.appendChild(_item);
-                    _item.appendChild(_icon);
+                    // _item.appendChild(_icon);
                     _item.appendChild(_a);
                     _a.appendChild(_content);
                     _content.appendChild(_title);

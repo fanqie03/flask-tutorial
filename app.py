@@ -2,6 +2,7 @@ from flask import Flask, request
 import pymongo, json, jieba, datetime, re, time
 from pandas import DataFrame, Series
 from dateutil.parser import parse
+from elasticsearch import Elasticsearch
 
 app = Flask(__name__)
 
@@ -10,6 +11,9 @@ scrapy_db = mongo_client['scrapy']
 hype_col = scrapy_db['HypebeastItem']
 cache_col = scrapy_db['cache']
 predict_col = scrapy_db['predict']
+temp_db = mongo_client['temp']
+taobao1_col = temp_db['taobao1']
+client = Elasticsearch()
 DIMENSION = 'dimension'
 KEY = 'key'
 FREQ = 'freq'
@@ -68,10 +72,11 @@ def get_predict():
 def recommend():
     raw_data = predict_col.find({}, {'_id': 0})
     predict_data = [x for x in raw_data]
-    raw_data = hype_col.find({}, {'_id': 0})
+    raw_data = taobao1_col.find({}, {'_id': 0})
     raw_data = [x for x in raw_data]
     j = Util.recommend(predict_data, raw_data)
-    return json.dumps(j[:10])
+    return json.dumps(j)
+
 
 @app.route('/test', methods=['post', 'get'])
 def test():
@@ -166,7 +171,7 @@ class Util:
         d['today'] = [today, d['data'][index][0]]
 
     @staticmethod
-    def recommend(predict_data, raw_data):
+    def recommend(predict_data, raw_data, size=50):
         hot = []
         for d in predict_data:
             index = 0
@@ -184,11 +189,21 @@ class Util:
 
         raw_data = [x for x in raw_data]
 
-        comment_items = []
-        for d in raw_data:
-            for h in hot:
-                if d['content'].find(h) >= 0:
-                    comment_items.append(d)
+        # 使用elasticsearch进行搜索
+        response = client.search(index='taobao1', doc_type='_doc', body={
+            "query": {
+                "match": {
+                    "title": "PVC网布皮鞋布鞋金属冷暗织布"
+                }
+            },
+            "highlight": {
+                "fields": {
+                    "title": {}
+                }
+            },
+            "size": size
+        })
+        comment_items = response['hits']['hits']
 
         return comment_items
 
