@@ -62,7 +62,7 @@ def get_predict():
 
     cursor = predict_col.find_one({KEY: key, FREQ: freq}, {'_id': 0})
     if cursor is None:
-        return '{}'
+        return ''
     Util.mark_today(cursor)
     cursor['index'] = [datetime.datetime.utcfromtimestamp(x).strftime('%Y-%m-%d') for x in cursor['index']]
     return json.dumps(cursor)
@@ -70,8 +70,10 @@ def get_predict():
 
 @app.route('/recommend/get', methods=['post', 'get'])
 def recommend():
+    # 已经分析出来的数据
     raw_data = predict_col.find({}, {'_id': 0})
     predict_data = [x for x in raw_data]
+    # 用于商品推荐的数据
     raw_data = taobao1_col.find({}, {'_id': 0})
     raw_data = [x for x in raw_data]
     j = Util.recommend(predict_data, raw_data)
@@ -168,7 +170,12 @@ class Util:
                 index = i
                 min_ = t
         today = Util.striftodate(d['index'][index])
-        d['today'] = [today, d['data'][index][0]]
+        #
+        if d.get('model') is None:
+            d['today'] = [today, d['data'][index][0]]
+        # `model`字段不为空
+        else:
+            d['today'] = [today, d['data'][index][1]]
 
     @staticmethod
     def recommend(predict_data, raw_data, size=50):
@@ -182,18 +189,25 @@ class Util:
                 if min_ > t:
                     index = i
                     min_ = t
-            next_data = d['data'][index + 1][0]
-            today_data = d['data'][index][0]
+            if d.get('model') is None:
+                next_data = d['data'][index + 1][0]
+                today_data = d['data'][index][0]
+                # `model`字段不为空
+            else:
+                next_data = d['data'][index + 1][1]
+                today_data = d['data'][index][1]
             if (next_data > today_data):
                 hot.append(d['key'])
 
-        raw_data = [x for x in raw_data]
+        title = ''.join(hot)
+
+        print(title)
 
         # 使用elasticsearch进行搜索
         response = client.search(index='taobao1', doc_type='_doc', body={
             "query": {
                 "match": {
-                    "title": "PVC网布皮鞋布鞋金属冷暗织布"
+                    "title": title
                 }
             },
             "highlight": {
