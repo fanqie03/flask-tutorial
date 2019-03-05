@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html style="height: 100%">
+<head>
+    <meta charset="utf-8">
+</head>
+<body style="height: 100%; margin: 0">
+<button type="button" onclick="loadJSONDoc()">load</button>
+<div id="container" style="height: 100%"></div>
+<script type="text/javascript" src="js/echarts.js"></script>
+<script type="text/javascript">
+    function loadJSONDoc() {
+
+        var xmlhttp;
+        if (window.XMLHttpRequest)
+        {
+            //  IE7+, Firefox, Chrome, Opera, Safari 浏览器执行代码
+            xmlhttp=new XMLHttpRequest();
+        }
+        else
+        {
+            // IE6, IE5 浏览器执行代码
+            xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+        }
+        xmlhttp.onreadystatechange=function()
+        {
+            if (xmlhttp.readyState==4 && xmlhttp.status==200)
+            {
+                document.getElementById("container").innerHTML=xmlhttp.responseText;
+            }
+        }
+        xmlhttp.open("GET","/info/1",true);
+        xmlhttp.send();
+    };
+</script>
+
+</body>
+</html>

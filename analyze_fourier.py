@@ -10,8 +10,13 @@ import pymongo, jieba, datetime, re, json
 import pandas as pd
 
 
-# tau=0.045
 def fourier_func(x, *a):
+    '''
+    定义简易版傅里叶级数
+    :param x:原始数据
+    :param a:待拟合参数
+    :return:
+    '''
     ret = a[0]
     w = a[1]
     start = 2
@@ -53,6 +58,7 @@ def curve(key_word='无', n=10, start=0, end=-1, freq='Q-JAN', curve_func=fourie
           col=pymongo.MongoClient('localhost')['scrapy']['predict'],
           src_col=pymongo.MongoClient('localhost')['scrapy']['HypebeastItem']):
     '''
+    使用scipy的curve_fit函数进行曲线拟合
     给出数据，进行拟合，并进行显示和保存
     key_word:拟合关键词
     n:傅里叶级数的阶数

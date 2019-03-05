@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script type="text/javascript" src="js/echarts.js"></script>
+    <script type="text/javascript" src="js/jquery-3.3.1.js"></script>
+</head>
+<body>
+<button id="button">load</button>
+<div id="container">2222</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#button').click(function () {
+            var out = $.ajax({
+                url:'/info/2',
+                dataType:'json',
+                async:false
+            });
+            console.log(out);
+            console.log(1);
+           // console.log($('#container')[0].html(innerText))
+            $('#container')[0].innerText = out['title'];
+        })
+
+    })
+</script>
+
+</body>
+</html>
