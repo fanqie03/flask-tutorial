@@ -1,0 +1,7 @@
+Flask
+pymongo
+Pandas
+jieba
+scipy
+tensorflow
+matplotlib
